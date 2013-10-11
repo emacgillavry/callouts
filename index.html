@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>Callouts</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" /> 
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
+    <![endif]-->
+    <style>
+        #map_canvas, html, body {
+            width: 100%; height: 100%; padding: 0; margin: 0;
+        }
+
+        #map_canvas {
+            background: url("http://www.webmapper.net/theme/img/mapbg.png") repeat scroll 0 0 #f9f9f9;
+        }
+        #torque_time {
+            color: #FFFFFF;
+            display: block;
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 189px;
+            text-align: center;
+            font-weight: bold;
+            padding: 3px;
+            vertical-align: middle;
+            background-color: #980000;
+            border: 1px white dashed;
+        }
+        a.cartodb_logo {
+            background: url("http://cartodb.s3.amazonaws.com/embed/embed_sprite.png") no-repeat scroll -61px 0 rgba(0, 0, 0, 0);
+            bottom: 8px;
+            display: block;
+            font-size: 0;
+            height: 27px;
+            left: 10px;
+            line-height: 0;
+            position: absolute;
+            text-indent: -9999px;
+            width: 69px;
+        }
+
+        img.leaflet-tile {
+            -webkit-filter: hue-rotate(180deg) invert(100%) saturate(30%);
+                    filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'darken\' style=\'color-interpolation-filters: sRGB\'><feColorMatrix type=\'hueRotate\' values=\'180\' /><feColorMatrix type=\'matrix\' values=\'-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 0 1\'/><feColorMatrix type=\'saturate\' values=\'0.3\' /></filter></svg>#darken");
+        }
+    </style>
+    <body>
+        <div id="map_canvas"></div>
+        <div id="torque_time"></div>
+        <a class="cartodb_logo" href="http://www.cartodb.com" target="_blank">CartoDB</a>
+        <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+        <script src="lib/underscore.js"></script>
+        <script src="lib/carto.js"></script>
+        <script src="lib/torque.js"></script>
+        <script>
+            document.getElementById('torque_time').innerHTML = "Loading data...";
+
+            var bg_map = L.tileLayer('http://a{s}.acetate.geoiq.com/tiles/acetate-hillshading/{z}/{x}/{y}.png', {
+                attribution: 'Background map design by <a href="http://www.stamen.com/">Stamen</a>. Tiles hosted by <a href="http://www.geoiq.com/">GeoIQ</a>. Map data: <a href="http://www.openstreetmap.org/">OpenStreetMap</a> and <a href="http://www.naturalearthdata.org/">Natural Earth Data</a>.',
+                subdomains: '0123',
+                minZoom: 2,
+                maxZoom: 18
+            });
+
+            var torqueLayer = new L.TorqueLayer({
+                provider: 'sql_api',
+                user       : 'emacgillavry',
+                table      : 'callouts',
+                column     : 'starttime',
+                countby    : 'count(cartodb_id)',
+                resolution: 2,
+                is_time: true,
+                steps: 750,
+                blendmode  : 'source-over',
+                animationDuration: 60
+            });
+
+            var DEFAULT_CARTOCSS = [
+                '#layer {',
+                '  marker-width: 2;',
+                '  marker-fill: #FEE391; ',
+                '  [value > 2] { marker-fill: #FEC44F; }',
+                '  [value > 3] { marker-fill: #FE9929; }',
+                '  [value > 4] { marker-fill: #EC7014; }',
+                '  [value > 5] { marker-fill: #CC4C02; }',
+                '  [value > 6] { marker-fill: #993404; }',
+                '  [value > 7] { marker-fill: #662506; }',
+                '  [frame-offset = 1] {  marker-width: 10; marker-fill-opacity: 0.05;}',
+                '  [frame-offset = 2] {  marker-width: 20; marker-fill-opacity: 0.02;}',
+                '}'
+            ].join('\n');
+            torqueLayer.setCartoCSS(DEFAULT_CARTOCSS);
+
+            var map = new L.Map('map_canvas', {
+                zoomControl: true,
+                center: [52.37653577,4.88750188],
+                zoom: 12,
+                layers: [bg_map,torqueLayer]
+            });
+
+            torqueLayer.on('change:time', function(changes) {
+                if (changes.time.toString() != 'Invalid Date') {
+                    var month_year = changes.time.toString().substr(4).split(' ');
+                    document.getElementById('torque_time').innerHTML = month_year[0] + " - " + month_year[2];
+                }
+            });
+            torqueLayer.play()
+        </script>
+    </body>
+</html>

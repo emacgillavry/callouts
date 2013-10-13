@@ -109,6 +109,7 @@
             <a class="cartodb_logo" href="http://www.cartodb.com" target="_blank">CartoDB</a>
         </footer>
         <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
+        <script src="lib/leaflet-hash.js"></script>
         <script src="lib/underscore.js"></script>
         <script src="lib/carto.js"></script>
         <script src="lib/torque.js"></script>
@@ -157,6 +158,8 @@
                 zoom: 12,
                 layers: [bg_map,torqueLayer]
             });
+
+            var hash = new L.Hash(map);
 
             torqueLayer.on('change:time', function(changes) {
                 if (changes.time.toString() != 'Invalid Date') {

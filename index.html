@@ -13,8 +13,7 @@
     <style>
         html {
             -webkit-font-smoothing: antialiased;
-            text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
-            color: #333333;
+            color: #333;
             font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
             font-size: 14px;
             line-height: 20px;
@@ -63,7 +62,7 @@
             color: #980000;
         }
         #torque_time {
-            color: #FFFFFF;
+            color: #fff;
             display: block;
             position: absolute;
             left: 50%;
@@ -76,6 +75,21 @@
             background-color: #980000;
             border: 1px white dashed;
         }
+        
+        #toggle-button {
+            background: url("http://www.webmapper.net/img/toggle-button.png") no-repeat scroll 0 0 rgba(0,0,0,0);
+            position: absolute;
+            bottom: 50px;
+            right: 20px;
+            z-index: 1000;
+            width: 25px;
+            height: 25px;
+        }
+
+        #toggle-button.closed {
+            background-position: 0 -25px;
+        }
+        
         a.cartodb_logo {
             background: url("http://cartodb.s3.amazonaws.com/embed/embed_sprite.png") no-repeat scroll -61px 0 rgba(0, 0, 0, 0);
             bottom: 8px;
@@ -105,9 +119,11 @@
                 <img src="http://www.webmapper.net/theme/img/wm-logo.png" class="logo" alt="Webmapper" width="135" height="60" title="What the map can be"/>
             </a>
         </header>
+        <div id="toggle-button"></div>
         <footer>
             <a class="cartodb_logo" href="http://www.cartodb.com" target="_blank">CartoDB</a>
         </footer>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
         <script src="lib/leaflet-hash.js"></script>
         <script src="lib/underscore.js"></script>
@@ -116,58 +132,66 @@
         <script>
             document.getElementById('torque_time').innerHTML = "Loading data...";
 
-            var bg_map = L.tileLayer('http://a{s}.acetate.geoiq.com/tiles/acetate-hillshading/{z}/{x}/{y}.png', {
-                attribution: 'Background map design by <a href="http://www.stamen.com/">Stamen</a>. Tiles hosted by <a href="http://www.geoiq.com/">GeoIQ</a>. Map data: <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors and <a href="http://www.naturalearthdata.org/">Natural Earth Data</a>.',
-                subdomains: '0123',
-                minZoom: 2,
-                maxZoom: 18
+            $(function () {
+                var torqueTime = $('#torque_time');
+                var bg_map = L.tileLayer('http://a{s}.acetate.geoiq.com/tiles/acetate-hillshading/{z}/{x}/{y}.png', {
+                    attribution: 'Background map design by <a href="http://www.stamen.com/">Stamen</a>. Tiles hosted by <a href="http://www.geoiq.com/">GeoIQ</a>. Map data: <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors and <a href="http://www.naturalearthdata.org/">Natural Earth Data</a>.',
+                    subdomains: '0123',
+                    minZoom: 2,
+                    maxZoom: 18
+                });
+
+                var torqueLayer = new L.TorqueLayer({
+                    provider   : 'sql_api',
+                    user       : 'emacgillavry',
+                    table      : 'callouts',
+                    column     : 'starttime',
+                    countby    : 'count(cartodb_id)',
+                    resolution : 2,
+                    is_time    : true,
+                    steps      : 750,
+                    blendmode  : 'source-over',
+                    animationDuration: 60
+                });
+
+                var DEFAULT_CARTOCSS = [
+                    '#layer {',
+                    '  marker-width: 2;',
+                    '  marker-fill: #FEE391; ',
+                    '  [value > 2] { marker-fill: #FEC44F; }',
+                    '  [value > 3] { marker-fill: #FE9929; }',
+                    '  [value > 4] { marker-fill: #EC7014; }',
+                    '  [value > 5] { marker-fill: #CC4C02; }',
+                    '  [value > 6] { marker-fill: #993404; }',
+                    '  [value > 7] { marker-fill: #662506; }',
+                    '  [frame-offset = 1] {  marker-width: 10; marker-fill-opacity: 0.05;}',
+                    '  [frame-offset = 2] {  marker-width: 20; marker-fill-opacity: 0.02;}',
+                    '}'
+                ].join('\n');
+                torqueLayer.setCartoCSS(DEFAULT_CARTOCSS);
+
+                var map = new L.Map('map_canvas', {
+                    zoomControl: true,
+                    center: [52.37653577,4.88750188],
+                    zoom: 11,
+                    layers: [bg_map,torqueLayer]
+                });
+
+                var hash = new L.Hash(map);
+
+                torqueLayer.on('change:time', function(changes) {
+                    if (changes.time.toString() != 'Invalid Date') {
+                      var month_year = changes.time.toString().substr(4).split(' ');
+                      torqueTime.text(month_year[0] + " " + month_year[2]);
+                    }
+                });
+                torqueLayer.play();
+   
+               $('#toggle-button').click(function() {
+                    $('header').toggle();
+                    $('#toggle-button').toggleClass("closed");
+                });
             });
-
-            var torqueLayer = new L.TorqueLayer({
-                provider: 'sql_api',
-                user       : 'emacgillavry',
-                table      : 'callouts',
-                column     : 'starttime',
-                countby    : 'count(cartodb_id)',
-                resolution: 2,
-                is_time: true,
-                steps: 750,
-                blendmode  : 'source-over',
-                animationDuration: 60
-            });
-
-            var DEFAULT_CARTOCSS = [
-                '#layer {',
-                '  marker-width: 2;',
-                '  marker-fill: #FEE391; ',
-                '  [value > 2] { marker-fill: #FEC44F; }',
-                '  [value > 3] { marker-fill: #FE9929; }',
-                '  [value > 4] { marker-fill: #EC7014; }',
-                '  [value > 5] { marker-fill: #CC4C02; }',
-                '  [value > 6] { marker-fill: #993404; }',
-                '  [value > 7] { marker-fill: #662506; }',
-                '  [frame-offset = 1] {  marker-width: 10; marker-fill-opacity: 0.05;}',
-                '  [frame-offset = 2] {  marker-width: 20; marker-fill-opacity: 0.02;}',
-                '}'
-            ].join('\n');
-            torqueLayer.setCartoCSS(DEFAULT_CARTOCSS);
-
-            var map = new L.Map('map_canvas', {
-                zoomControl: true,
-                center: [52.37653577,4.88750188],
-                zoom: 12,
-                layers: [bg_map,torqueLayer]
-            });
-
-            var hash = new L.Hash(map);
-
-            torqueLayer.on('change:time', function(changes) {
-                if (changes.time.toString() != 'Invalid Date') {
-                    var month_year = changes.time.toString().substr(4).split(' ');
-                    document.getElementById('torque_time').innerHTML = month_year[0] + " - " + month_year[2];
-                }
-            });
-            torqueLayer.play()
         </script>
     </body>
 </html>

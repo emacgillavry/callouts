@@ -72,7 +72,7 @@
             background-color: #980000;
             border: 1px white dashed;
         }
-        
+
         #toggle-button {
             background: url("http://www.webmapper.net/img/toggle-button.png") no-repeat scroll 0 0 rgba(0,0,0,0);
             position: absolute;
@@ -86,7 +86,7 @@
         #toggle-button.closed {
             background-position: 0 -25px;
         }
-        
+
         #twitter-button {
             width: 85px;
             height: 22px;
@@ -98,17 +98,16 @@
             bottom: 5px;
             left: 90px;
             z-index: 999;
-            text-indent: -9999px;            
         }
 
         #twitter-button .twitter-share-button {
             margin: 0;
             padding: 0;
         }
-        
+
         a.cartodb_logo {
             background: url("http://cartodb.s3.amazonaws.com/embed/embed_sprite.png") no-repeat scroll -61px 0 rgba(0, 0, 0, 0);
-            bottom: 8px;
+            bottom: 10px;
             display: block;
             font-size: 0;
             height: 27px;
@@ -205,7 +204,7 @@
                     }
                 });
                 torqueLayer.play();
-   
+
                $('#toggle-button').click(function() {
                     $('header').toggle();
                     $('#toggle-button').toggleClass("closed");

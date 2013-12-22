@@ -219,7 +219,7 @@
                 });
                 torqueLayer.play();
 
-                $.getJSON('data/veiligheidsregios.topojson', function(jsondata) {
+                $.getJSON('https://raw.github.com/emacgillavry/callouts/master/data/veiligheidsregios.topojson', function(jsondata) {
                     var polys = new L.TopoJSON(jsondata, {style: {weight: 2,color: "#fff",fillOpacity: 0}} );
                     polys.addTo(map);
                 });

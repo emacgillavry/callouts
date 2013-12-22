@@ -6,7 +6,7 @@
     <meta name="author" content="Edward Mac Gillavry">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
     <style>
         html {
             -webkit-font-smoothing: antialiased;
@@ -142,12 +142,26 @@
             <a class="cartodb_logo" href="http://www.cartodb.com" target="_blank">CartoDB</a>
         </footer>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+        <script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js?2"></script>
+        <script src="http://d3js.org/topojson.v1.min.js"></script>
         <script src="lib/leaflet-hash.js"></script>
         <script src="lib/underscore.js"></script>
         <script src="lib/carto.js"></script>
         <script src="lib/torque.js"></script>
         <script>
+
+            L.TopoJSON = L.GeoJSON.extend({
+                addData: function(jsonData) {
+                    if (jsonData.type === "Topology") {
+                        for (key in jsonData.objects) {
+                            var geojson = topojson.feature(jsonData, jsonData.objects[key]);
+                            L.GeoJSON.prototype.addData.call(this, geojson);
+                        }
+                    } else {
+                      L.GeoJSON.prototype.addData.call(this, jsonData);
+                    }
+                }
+            });
             document.getElementById('torque_time').innerHTML = "Loading data...";
 
             $(function () {
@@ -192,7 +206,7 @@
                     zoomControl: true,
                     center: [52.37653577,4.88750188],
                     zoom: 11,
-                    layers: [bg_map,torqueLayer]
+                    layers: [bg_map]
                 });
 
                 var hash = new L.Hash(map);
@@ -204,6 +218,13 @@
                     }
                 });
                 torqueLayer.play();
+
+                $.getJSON('data/veiligheidsregios.topojson', function(jsondata) {
+                    var polys = new L.TopoJSON(jsondata, {style: {weight: 2,color: "#fff",fillOpacity: 0}} );
+                    polys.addTo(map);
+                });
+
+                torqueLayer.addTo(map);
 
                $('#toggle-button').click(function() {
                     $('header').toggle();

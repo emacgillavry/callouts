@@ -162,6 +162,7 @@
                     }
                 }
             });
+
             document.getElementById('torque_time').innerHTML = "Loading data...";
 
             $(function () {
@@ -206,7 +207,7 @@
                     zoomControl: true,
                     center: [52.37653577,4.88750188],
                     zoom: 11,
-                    layers: [bg_map]
+                    layers: [bg_map,torqueLayer]
                 });
 
                 var hash = new L.Hash(map);
@@ -219,14 +220,16 @@
                 });
                 torqueLayer.play();
 
-                $.getJSON('https://raw.github.com/emacgillavry/callouts/master/data/veiligheidsregios.topojson', function(jsondata) {
-                    var polys = new L.TopoJSON(jsondata, {style: {weight: 2,color: "#fff",fillOpacity: 0}} );
+                $.getJSON('data/veiligheidsregios.topojson', function(jsondata) {
+                    var polys = new L.TopoJSON(jsondata, {
+                        style: {weight: 2, color: "#fff", fillOpacity: 0}
+                    });
                     polys.addTo(map);
                 });
 
                 torqueLayer.addTo(map);
 
-               $('#toggle-button').click(function() {
+                $('#toggle-button').click(function() {
                     $('header').toggle();
                     $('#toggle-button').toggleClass("closed");
                 });

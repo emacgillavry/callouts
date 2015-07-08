@@ -6,7 +6,7 @@
     <meta name="author" content="Edward Mac Gillavry">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
     <style>
         html {
             -webkit-font-smoothing: antialiased;
@@ -20,7 +20,9 @@
         }
 
         #map_canvas {
-            background: url("http://www.webmapper.net/theme/img/mapbg.png") repeat scroll 0 0 #f9f9f9;
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAMAAABhq6zVAAAACVBMVEUAAADl5eX////EwbxGAAAAAXRSTlMAQObYZgAAABFJREFUeAFjYESCKACdT38ZAAWhAAxcPQc7AAAAAElFTkSuQmCC) repeat scroll 0 0 #f9f9f9;
+            cursor: move;
+            -webkit-tap-highlight-color: transparent;
         }
 
         header {
@@ -119,8 +121,11 @@
         }
 
         img.leaflet-tile {
+            position: absolute;
+            left: 0;
+            top: 0;
             -webkit-filter: hue-rotate(180deg) invert(100%) saturate(30%);
-                    filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'darken\' style=\'color-interpolation-filters: sRGB\'><feColorMatrix type=\'hueRotate\' values=\'180\' /><feColorMatrix type=\'matrix\' values=\'-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 0 1\'/><feColorMatrix type=\'saturate\' values=\'0.3\' /></filter></svg>#darken");
+                    filter: url(filter.svg#darken);
         }
     </style>
     <body>
@@ -143,7 +148,7 @@
             <a class="cartodb_logo" href="http://www.cartodb.com" target="_blank">CartoDB</a>
         </footer>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js?2"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
         <script src="http://d3js.org/topojson.v1.min.js"></script>
         <script src="lib/leaflet-hash.js"></script>
         <script src="lib/underscore.js"></script>

@@ -178,7 +178,7 @@
             $(function () {
                 var torqueTime = $('#torque_time');
                 var bg_map = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_nolabels/{z}/{x}/{y}.png', {                    
-                    attribution: 'Basemap design by <a href="http://www.stamen.com/">Stamen</a>. Tiles hosted by <a href="http://www.cartodb.com/">CartoDB</a>. Map data: <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors.',
+                    attribution: 'Basemap design by <a href="http://www.stamen.com/">Stamen</a>. Tiles hosted by <a href="http://www.cartodb.com/">CartoDB</a>. Map data: <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors',
                     minZoom: 2,
                     maxZoom: 18
                 });
@@ -231,12 +231,24 @@
                 });
                 torqueLayer.play();
 
-                $.getJSON('data/veiligheidsregios.topojson', function(jsondata) {
-                    var polys = new L.TopoJSON(jsondata, {
-                        style: {weight: 2, color: "#fff", fillOpacity: 0}
-                    });
-                    polys.addTo(map);
-                });
+                var polys = new L.TopoJSON(null, {style: {weight: 1,color: "#fff",fillOpacity: 0}} );
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', encodeURI('data/veiligheidsregios.topojson'));
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        polys.addData(JSON.parse(xhr.responseText));
+                        polys.addTo(map);
+                    }
+                    else {
+                        alert('Request failed.  Returned status of ' + xhr.status);
+                    }
+                };
+                xhr.send();
+
+                polys.getAttribution = function() {
+                    return 'Joint Emergency Services Districts: <a title="Imergis Organisatiebloei" href="http://www.imergis.nl/">Imergis</a>.';
+                }
 
                 torqueLayer.addTo(map);
                 
